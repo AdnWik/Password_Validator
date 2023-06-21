@@ -3,3 +3,4 @@
 /password_validator/test.py
 /.pytest_cache
 /password_validator/__pycache__
+/password_validator/main.py

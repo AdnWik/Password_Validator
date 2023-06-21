@@ -77,17 +77,37 @@ class LengthValidator(Validator):
         pass
 
 
+class HaveIBennPwndValidator(Validator):
+    """# TODO: """
+
+    def __init__(self, text) -> None:
+        self.text = text
+
+    def is_valid(self):
+        # TODO:
+        pass
+
+
 class PasswordValidator():
     """# TODO: """
 
     def __init__(self, password) -> None:
         self.password = password
         self.validators = [
-            HasNumberValidator
+            HasNumberValidator,
+            HasSpecialCharacterValidator,
+            HasLowerCharacterValidator,
+            HasUpperCharacterValidator,
+            LengthValidator,
+            HaveIBennPwndValidator
         ]
 
     def is_valid(self):
         """# TODO: """
-        for class_name in self.validators:
-            validator = class_name(self.password)
-            print(validator.is_valid())
+        try:
+            for class_name in self.validators:
+                validator = class_name(self.password)
+                validator.is_valid()
+            return True
+        except ValidatorError as error:
+            print(error)
