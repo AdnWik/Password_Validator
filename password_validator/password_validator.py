@@ -1,14 +1,16 @@
-"""# TODO: """
+"""Password"""
 from abc import ABC, abstractmethod
 from re import findall
+from hashlib import sha1
+from requests import get
 
 
 class ValidatorError(Exception):
-    """# TODO: """
+    """ValidatorError"""
 
 
 class Validator(ABC):
-    """# TODO: """
+    """Validator Abstract"""
 
     @abstractmethod
     def __init__(self, text) -> None:
@@ -20,7 +22,7 @@ class Validator(ABC):
 
 
 class HasNumberValidator(Validator):
-    """# TODO: """
+    """Check number in password"""
 
     def __init__(self, text) -> None:
         self.text = text
@@ -34,58 +36,81 @@ class HasNumberValidator(Validator):
 
 
 class HasSpecialCharacterValidator(Validator):
-    """# TODO: """
+    """Check special character in password"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     def is_valid(self):
-        # TODO:
-        pass
+        temp_table = findall('\W', self.text)
+        if temp_table:
+            return True
+        else:
+            raise ValidatorError("Password must contain special character")
 
 
 class HasUpperCharacterValidator(Validator):
-    """# TODO: """
+    """Check upper character in password"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     def is_valid(self):
-        # TODO:
-        pass
+        temp_table = findall('[A-Z]', self.text)
+        if temp_table:
+            return True
+        else:
+            raise ValidatorError("Password must contain upper character")
 
 
 class HasLowerCharacterValidator(Validator):
-    """# TODO: """
+    """Check lower character in password"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     def is_valid(self):
-        # TODO:
-        pass
+        temp_table = findall('[a-z]', self.text)
+        if temp_table:
+            return True
+        else:
+            raise ValidatorError("Password must contain a lower character")
 
 
 class LengthValidator(Validator):
-    """# TODO: """
+    """Check length of password"""
+
+    def __init__(self, text, min_length=8) -> None:
+        self.text = text
+        self.min_length = min_length
+
+    def is_valid(self):
+        if len(self.text) >= self.min_length:
+            return True
+        else:
+            raise ValidatorError(f'Password must contain a '
+                                 f'{self.min_length} characters')
+
+
+class HaveIbennPwndValidator(Validator):
+    """Check password in HaveIbeenPwnd.com"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     def is_valid(self):
-        # TODO:
-        pass
+        _hash = sha1(self.text.encode(encoding='UTF-8')).hexdigest().upper()
+        _hash_prefix = _hash[:5]
+        _hash_suffix = _hash[5:]
 
+        with get(f'https://api.pwnedpasswords.com/range/{_hash_prefix}') as r:
+            content = r.text.splitlines()
 
-class HaveIBennPwndValidator(Validator):
-    """# TODO: """
-
-    def __init__(self, text) -> None:
-        self.text = text
-
-    def is_valid(self):
-        # TODO:
-        pass
+            temp_table = [tuple(i.split(':')) for i in content]
+            if _hash_suffix in [receive_hash for receive_hash, _ in temp_table]:
+                raise ValidatorError('Password pwned')
+            else:
+                return True
 
 
 class PasswordValidator():
@@ -99,7 +124,7 @@ class PasswordValidator():
             HasLowerCharacterValidator,
             HasUpperCharacterValidator,
             LengthValidator,
-            HaveIBennPwndValidator
+            HaveIbennPwndValidator
         ]
 
     def is_valid(self):
