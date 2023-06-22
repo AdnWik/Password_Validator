@@ -1,4 +1,4 @@
-"""Password"""
+"""Password Validators"""
 from abc import ABC, abstractmethod
 from re import findall
 from hashlib import sha1
@@ -103,8 +103,8 @@ class HaveIbennPwndValidator(Validator):
         _hash_prefix = _hash[:5]
         _hash_suffix = _hash[5:]
 
-        with get(f'https://api.pwnedpasswords.com/range/{_hash_prefix}') as r:
-            content = r.text.splitlines()
+        with get(f'https://api.pwnedpasswords.com/range/{_hash_prefix}', timeout= 2) as response:
+            content = response.text.splitlines()
 
             temp_table = [tuple(i.split(':')) for i in content]
             if _hash_suffix in [receive_hash for receive_hash, _ in temp_table]:
@@ -114,7 +114,7 @@ class HaveIbennPwndValidator(Validator):
 
 
 class PasswordValidator():
-    """# TODO: """
+    """Password validator"""
 
     def __init__(self, password) -> None:
         self.password = password
@@ -128,11 +128,9 @@ class PasswordValidator():
         ]
 
     def is_valid(self):
-        """# TODO: """
-        try:
-            for class_name in self.validators:
-                validator = class_name(self.password)
-                validator.is_valid()
-            return True
-        except ValidatorError as error:
-            print(error)
+        """Check password with validators"""
+
+        for class_name in self.validators:
+            validator = class_name(self.password)
+            validator.is_valid()
+        return True
