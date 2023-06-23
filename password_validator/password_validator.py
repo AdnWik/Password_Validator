@@ -24,7 +24,7 @@ class Validator(ABC):
 
 
 class HasNumberValidator(Validator):
-    """Validator checking if string contain number"""
+    """Validator that checks if number appears in text"""
 
     def __init__(self, text) -> None:
         self.text = text
@@ -45,11 +45,11 @@ class HasNumberValidator(Validator):
             logging.info('%s: OK', self.__class__.__name__)
 
             return True
-        else:
-            error_message = 'Password must contain a number'
-            logging.error('%s: %s', self.__class__.__name__, error_message)
 
-            raise ValidatorError(error_message)
+        error_message = 'Password must contain a number'
+        logging.error('%s: %s', self.__class__.__name__, error_message)
+
+        raise ValidatorError(error_message)
 
 
 class HasSpecialCharacterValidator(Validator):
@@ -66,11 +66,11 @@ class HasSpecialCharacterValidator(Validator):
             logging.info('%s: OK', self.__class__.__name__)
 
             return True
-        else:
-            error_message = 'Password must contain special character'
-            logging.error('%s: %s', self.__class__.__name__, error_message)
 
-            raise ValidatorError(error_message)
+        error_message = 'Password must contain special character'
+        logging.error('%s: %s', self.__class__.__name__, error_message)
+
+        raise ValidatorError(error_message)
 
 
 class HasUpperCharacterValidator(Validator):
@@ -87,11 +87,11 @@ class HasUpperCharacterValidator(Validator):
             logging.info('%s: OK', self.__class__.__name__)
 
             return True
-        else:
-            error_message = 'Password must contain upper character'
-            logging.error('%s: %s', self.__class__.__name__, error_message)
 
-            raise ValidatorError(error_message)
+        error_message = 'Password must contain upper character'
+        logging.error('%s: %s', self.__class__.__name__, error_message)
+
+        raise ValidatorError(error_message)
 
 
 class HasLowerCharacterValidator(Validator):
@@ -108,11 +108,11 @@ class HasLowerCharacterValidator(Validator):
             logging.info('%s: OK', self.__class__.__name__)
 
             return True
-        else:
-            error_message = 'Password must contain a lower character'
-            logging.error('%s: %s', self.__class__.__name__, error_message)
 
-            raise ValidatorError(error_message)
+        error_message = 'Password must contain a lower character'
+        logging.error('%s: %s', self.__class__.__name__, error_message)
+
+        raise ValidatorError(error_message)
 
 
 class LengthValidator(Validator):
@@ -129,12 +129,12 @@ class LengthValidator(Validator):
             logging.info('%s: OK', self.__class__.__name__)
 
             return True
-        else:
-            error_message = (f'Password must contain a '
-                             f'{self.min_length} characters')
-            logging.error('%s: %s', self.__class__.__name__, error_message)
 
-            raise ValidatorError(error_message)
+        error_message = (f'Password must contain a '
+                         f'{self.min_length} characters')
+        logging.error('%s: %s', self.__class__.__name__, error_message)
+
+        raise ValidatorError(error_message)
 
 
 @cache
@@ -162,10 +162,10 @@ class HaveIbennPwndValidator(Validator):
                 logging.error('%s: %s', self.__class__.__name__, error_message)
 
                 raise ValidatorError(error_message)
-            else:
-                logging.info('%s: OK', self.__class__.__name__)
 
-                return True
+            logging.info('%s: OK', self.__class__.__name__)
+
+            return True
 
 
 class PasswordValidator():
