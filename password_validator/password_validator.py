@@ -1,38 +1,55 @@
 """Password Validators"""
 from abc import ABC, abstractmethod
 from re import findall
+import logging
+from functools import cache
 from hashlib import sha1
 from requests import get
 
 
 class ValidatorError(Exception):
-    """ValidatorError"""
+    """Exception for validation error"""
 
 
 class Validator(ABC):
-    """Validator Abstract"""
+    """Interface for validators"""
 
     @abstractmethod
     def __init__(self, text) -> None:
-        pass
+        """Force to implement __init__ method"""
 
     @abstractmethod
     def is_valid(self):
-        pass
+        """Force to implement is_valid method"""
 
 
 class HasNumberValidator(Validator):
-    """Check number in password"""
+    """Validator checking if string contain number"""
 
     def __init__(self, text) -> None:
         self.text = text
 
     def is_valid(self):
-        temp_table = findall('[0-9]', self.text)
+        """Check if text is valid
+
+        Raises:
+            ValidatorError: text is not valid because there is no number in text
+
+        Returns:
+            bool: has number in text
+        """
+        logging.debug('%s: Start validate', self.__class__.__name__)
+
+        temp_table = findall(r'[0-9]', self.text)
         if temp_table:
+            logging.info('%s: OK', self.__class__.__name__)
+
             return True
         else:
-            raise ValidatorError("Password must contain a number")
+            error_message = 'Password must contain a number'
+            logging.error('%s: %s', self.__class__.__name__, error_message)
+
+            raise ValidatorError(error_message)
 
 
 class HasSpecialCharacterValidator(Validator):
@@ -42,11 +59,18 @@ class HasSpecialCharacterValidator(Validator):
         self.text = text
 
     def is_valid(self):
-        temp_table = findall('\W', self.text)
+        logging.debug('%s: Start validate', self.__class__.__name__)
+
+        temp_table = findall(r'\W', self.text)
         if temp_table:
+            logging.info('%s: OK', self.__class__.__name__)
+
             return True
         else:
-            raise ValidatorError("Password must contain special character")
+            error_message = 'Password must contain special character'
+            logging.error('%s: %s', self.__class__.__name__, error_message)
+
+            raise ValidatorError(error_message)
 
 
 class HasUpperCharacterValidator(Validator):
@@ -56,11 +80,18 @@ class HasUpperCharacterValidator(Validator):
         self.text = text
 
     def is_valid(self):
-        temp_table = findall('[A-Z]', self.text)
+        logging.debug('%s: Start validate', self.__class__.__name__)
+
+        temp_table = findall(r'[A-Z]', self.text)
         if temp_table:
+            logging.info('%s: OK', self.__class__.__name__)
+
             return True
         else:
-            raise ValidatorError("Password must contain upper character")
+            error_message = 'Password must contain upper character'
+            logging.error('%s: %s', self.__class__.__name__, error_message)
+
+            raise ValidatorError(error_message)
 
 
 class HasLowerCharacterValidator(Validator):
@@ -70,11 +101,18 @@ class HasLowerCharacterValidator(Validator):
         self.text = text
 
     def is_valid(self):
-        temp_table = findall('[a-z]', self.text)
+        logging.debug('%s: Start validate', self.__class__.__name__)
+
+        temp_table = findall(r'[a-z]', self.text)
         if temp_table:
+            logging.info('%s: OK', self.__class__.__name__)
+
             return True
         else:
-            raise ValidatorError("Password must contain a lower character")
+            error_message = 'Password must contain a lower character'
+            logging.error('%s: %s', self.__class__.__name__, error_message)
+
+            raise ValidatorError(error_message)
 
 
 class LengthValidator(Validator):
@@ -85,13 +123,21 @@ class LengthValidator(Validator):
         self.min_length = min_length
 
     def is_valid(self):
+        logging.debug('%s: Start validate', self.__class__.__name__)
+
         if len(self.text) >= self.min_length:
+            logging.info('%s: OK', self.__class__.__name__)
+
             return True
         else:
-            raise ValidatorError(f'Password must contain a '
-                                 f'{self.min_length} characters')
+            error_message = (f'Password must contain a '
+                             f'{self.min_length} characters')
+            logging.error('%s: %s', self.__class__.__name__, error_message)
+
+            raise ValidatorError(error_message)
 
 
+@cache
 class HaveIbennPwndValidator(Validator):
     """Check password in HaveIbeenPwnd.com"""
 
@@ -99,17 +145,26 @@ class HaveIbennPwndValidator(Validator):
         self.text = text
 
     def is_valid(self):
-        _hash = sha1(self.text.encode(encoding='UTF-8')).hexdigest().upper()
-        _hash_prefix = _hash[:5]
-        _hash_suffix = _hash[5:]
+        logging.debug('%s: Start validate', self.__class__.__name__)
 
-        with get(f'https://api.pwnedpasswords.com/range/{_hash_prefix}', timeout= 2) as response:
+        password_hash = (sha1(self.text.encode(encoding='UTF-8'))
+                         .hexdigest().upper())
+        hash_prefix = password_hash[:5]
+        hash_suffix = password_hash[5:]
+        url = 'https://api.pwnedpasswords.com/range/'
+
+        with get(f'{url}{hash_prefix}', timeout=2) as response:
             content = response.text.splitlines()
 
             temp_table = [tuple(i.split(':')) for i in content]
-            if _hash_suffix in [receive_hash for receive_hash, _ in temp_table]:
-                raise ValidatorError('Password pwned')
+            if hash_suffix in [receive_hash for receive_hash, _ in temp_table]:
+                error_message = 'Password pwned'
+                logging.error('%s: %s', self.__class__.__name__, error_message)
+
+                raise ValidatorError(error_message)
             else:
+                logging.info('%s: OK', self.__class__.__name__)
+
                 return True
 
 
@@ -130,7 +185,14 @@ class PasswordValidator():
     def is_valid(self):
         """Check password with validators"""
 
+        logging.info('%s: Validation  "%s"',
+                     self.__class__.__name__, self.password)
+
         for class_name in self.validators:
             validator = class_name(self.password)
             validator.is_valid()
+
+        logging.info('%s: "%s" is validated',
+                     self.__class__.__name__, self.password)
+
         return True
