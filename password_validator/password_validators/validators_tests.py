@@ -1,6 +1,6 @@
 """Password validators tests"""
 import pytest
-from password_validator import (
+from validators import (
     HasNumberValidator,
     HasSpecialCharacterValidator,
     HasUpperCharacterValidator,
