@@ -1,6 +1,4 @@
-/Password_Validator.code-workspace
+*.code-workspace
+*/.pytest_cache
+*/__pycache__
 /password_validator_venv
-/password_validator/test.py
-/.pytest_cache
-/password_validator/__pycache__
-/password_validator/main.py

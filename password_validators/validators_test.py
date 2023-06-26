@@ -1,6 +1,6 @@
 """Password validators tests"""
 import pytest
-from validators import (
+from password_validators.validators import (
     HasNumberValidator,
     HasSpecialCharacterValidator,
     HasUpperCharacterValidator,
@@ -8,7 +8,8 @@ from validators import (
     LengthValidator,
     HaveIbennPwndValidator,
     PasswordValidator,
-    ValidatorError)
+    ValidatorError
+    )
 
 
 def test_has_number_validator_positive():
@@ -206,6 +207,4 @@ def test_password_validator_negative(requests_mock):
     validator = PasswordValidator('A')
 
     # when
-    with pytest.raises(ValidatorError) as error:
-        validator.is_valid()
-        assert 'Password must contain a number' in str(error.value)
+    assert validator.is_valid() is False

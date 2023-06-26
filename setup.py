@@ -1,5 +1,5 @@
 from setuptools import setup
-
+# python setup.py sdist
 
 setup(
     name='password_validators',
