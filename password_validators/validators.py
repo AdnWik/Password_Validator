@@ -222,15 +222,10 @@ class PasswordValidator():
         logging.info('%s: Validation  "%s"',
                      self.__class__.__name__, self.password)
 
-        try:
-            for class_name in self.validators:
-                validator = class_name(self.password)
-                validator.is_valid()
+        for class_name in self.validators:
+            validator = class_name(self.password)
+            validator.is_valid()
 
-            logging.info('%s: "%s" is safe',
-                         self.__class__.__name__, self.password)
-            return True
-        except ValidatorError:
-            logging.info('%s: "%s" is not safe',
-                         self.__class__.__name__, self.password)
-            return False
+        logging.info('%s: "%s" is safe',
+                     self.__class__.__name__, self.password)
+        return True

@@ -179,7 +179,7 @@ def test_have_i_benn_pwned_negative(requests_mock):
 
 
 def test_password_validator_positive(requests_mock):
-    """Length validator positive test"""
+    """Password validator positive test"""
 
     # Password: Admin!2#4
     # Hash: 80A5DDCFF79958F65FE712272C245448E417C045
@@ -195,7 +195,7 @@ def test_password_validator_positive(requests_mock):
 
 
 def test_password_validator_negative(requests_mock):
-    """Length validator positive test"""
+    """Password validator positive test"""
 
     # Password: Admin!2#4
     # Hash: 80A5DDCFF79958F65FE712272C245448E417C045
@@ -204,7 +204,9 @@ def test_password_validator_negative(requests_mock):
     data = ('FFC978EDB996E9ADA72E89B4BBB984C87D6:3\r\n' +
             'DCFF79958F65FE712272C245448E417C045:1')
     requests_mock.get('https://api.pwnedpasswords.com/range/80A5D', text=data)
-    validator = PasswordValidator('A')
+    validator = PasswordValidator('Admin!2#4')
 
     # when
-    assert validator.is_valid() is False
+    with pytest.raises(ValidatorError)as error:
+        validator.is_valid()
+        assert 'Password pwned' in str(error.value)
